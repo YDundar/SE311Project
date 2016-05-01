@@ -1,14 +1,11 @@
 #include <iostream>
 #include <vector>
-#include <time.h>
-#include<stdio.h>
-#include<stdlib.h>
-#include<conio.h>
+#include <ctime>
 
 using namespace std;
 
 class ZigbeeDevice;
-class Farm;
+
 class LivestockDatabase {
 private:
 	LivestockDatabase() {};
