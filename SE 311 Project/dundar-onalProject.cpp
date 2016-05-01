@@ -10,15 +10,11 @@ class LivestockDatabase {
 private:
 	LivestockDatabase() {};
 	vector<ZigbeeDevice*> deviceList;
-	vector<Cattle*> beefCattle;
-	vector<Cattle*> dairyCattle;
-	vector<string*> locations;
 	static LivestockDatabase* database;
 public:
 	void AddDevice(ZigbeeDevice* ZBDevice) {
 		deviceList.push_back(ZBDevice);
 	}
-	void specifyFarm(Farm* f) { beefCattle = f->getBeefCattle(); dairyCattle = f->getDairyCattle(); }
 	void listDevices();
 	void listLocations();
 	static LivestockDatabase* GetDatabase() { return database; }
