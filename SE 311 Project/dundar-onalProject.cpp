@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <time.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<conio.h>
 
 using namespace std;
 
@@ -25,7 +28,7 @@ class ZigbeeDevice {
 private:
 	int deviceHolderID;
 	double location[3] = { 0,0,0 };
-	
+
 public:
 	ZigbeeDevice(int id) {LivestockDatabase::GetDatabase()->AddDevice(this); deviceHolderID = id; }
 	int getDeviceHolderID() { return deviceHolderID; }
@@ -73,7 +76,7 @@ class Cattle {
 public:
 	Cattle() {}
 private:
-	
+
 };
 
 class DairyCattle:public Cattle {
@@ -98,7 +101,7 @@ private:
 	vector <Cattle*> dairyLivestock;
 	vector <Cattle*> beefLivestock;
 public:
-	
+
 	void AddNewDairyCattle(int id) {
 		dairyLivestock.push_back(new DairyCattle(id));
 	}
