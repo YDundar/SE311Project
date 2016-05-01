@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <time.h>
 #include <ctime>
 
 using namespace std;
@@ -91,6 +92,16 @@ private:
 	ZigbeeDevice* TrackingDevice;
 public:
 	BeefCattle(int id) { uniqueID = id; TrackingDevice = new ZigbeeDevice(uniqueID); }
+};
+
+class Carbonhdrate{
+};
+
+class Protein{
+};
+class Corn:public Carbonhdrate{
+};
+class Soybean :public Protein{
 };
 
 class Farm {
