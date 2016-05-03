@@ -5,30 +5,61 @@
 
 using namespace std;
 
-class ZigbeeDevice;
-
-class LivestockDatabase {
+class Zigbee;
+//Database that holds the Location information of all farm animals using Zigbee signals.
+class LivestockDatabase { 
 private:
 	LivestockDatabase() {};
-	vector<ZigbeeDevice*> deviceList;
+	vector<Zigbee*> deviceList;
 	static LivestockDatabase* database;
 public:
-	void AddDevice(ZigbeeDevice* ZBDevice) {
+	void AddDevice(Zigbee* ZBDevice) {
 		deviceList.push_back(ZBDevice);
 	}
 	void listDevices();
 	void listLocations();
 	static LivestockDatabase* GetDatabase() { return database; }
-	virtual void BluetoothToZigbee() {};
 };
-
-class ZigbeeDevice {
+//Abstract Zigbee class
+class Zigbee {
+public:
+	virtual void sendLocationToDatabase() = 0;
+	virtual void getLocationInfo() = 0;
+	virtual int getDeviceHolderID() = 0;
+	virtual void updateLocation() = 0;
+};
+//Concrete Zigbee Class
+class ZigbeeDevice:public Zigbee {
 private:
 	int deviceHolderID;
 	double location[3] = { 0,0,0 };
-
+protected:
+	ZigbeeDevice() {}
 public:
-	ZigbeeDevice(int id) {LivestockDatabase::GetDatabase()->AddDevice(this); deviceHolderID = id; }
+	ZigbeeDevice(int id) { deviceHolderID = id; sendLocationToDatabase(); }
+	int getDeviceHolderID() { return deviceHolderID; }
+	void updateLocation() {
+		double x = rand() % 20;
+		location[0] = x;
+		x = rand() % 20;
+		location[1] = 1;
+		x = rand() % 20;
+		location[2] = x;
+	}
+	void getLocationInfo() {
+		cout << "(" << location[0] << "," << location[1] << "," << location[2] << ")";
+	}
+	void sendLocationToDatabase(){
+		LivestockDatabase::GetDatabase()->AddDevice(this);
+	}
+};
+//Bluetooth Class
+class BluetoothDevice {
+private:
+	int deviceHolderID;
+	double location[3] = { 0,0,0 };
+public:
+	BluetoothDevice(int id) { deviceHolderID = id; }
 	int getDeviceHolderID() { return deviceHolderID; }
 	void updateLocation() {
 		double x = rand() % 20;
@@ -42,50 +73,43 @@ public:
 		cout << "(" << location[0] << "," << location[1] << "," << location[2] << ")";
 	}
 };
-class BluetoothDevice {
-private:
-	int deviceHolderID;
-	double location[3] = { 0,0,0 };
-public:
-	BluetoothDevice(int id) { deviceHolderID = id; }
-	void updateLocation() {
-		double x = rand() % 20;
-		location[0] = x;
-		x = rand() % 20;
-		location[1] = 1;
-		x = rand() % 20;
-		location[2] = x;
-	}
-	void getLocationInfo() {
-		cout << "(" << location[0] << "," << location[1] << "," << location[2] << ")";
-	}
-};
-
-class BluetoothToDatabaseAdapter :public LivestockDatabase {
+//Bluetooth signal to Zigbee signal Adapter
+class BluetoothToZigbee :public Zigbee {
 private:
 	BluetoothDevice* adaptee;
 public:
-	void BluetoothToZigbee() {
-
+	BluetoothToZigbee(BluetoothDevice* bTooth) {
+		adaptee = bTooth;
+		sendLocationToDatabase();
+	};
+	void getLocationInfo() {
+		adaptee->getLocationInfo();
+	}
+	void updateLocation() {
+		adaptee->updateLocation();
+	}
+	void sendLocationToDatabase() {
+		LivestockDatabase::GetDatabase()->AddDevice(this);
+	}
+	int getDeviceHolderID() {
+		return adaptee->getDeviceHolderID();
 	}
 };
-
+//Abstract Cattle Class
 class Cattle {
 public:
 	Cattle() {}
-private:
-
 };
-
+//Concrete Dairy Cattle Class. Tracked using Bluetooth.
 class DairyCattle:public Cattle {
 private:
 	int uniqueID;
-	BluetoothDevice* TrackingDevice;
+	Zigbee* bluetoothToZigbeeAdapter;
 public:
-	DairyCattle(int id) { uniqueID = id; TrackingDevice = new BluetoothDevice(uniqueID); }
+	DairyCattle(int id) { uniqueID = id; bluetoothToZigbeeAdapter = new BluetoothToZigbee(new BluetoothDevice(uniqueID)); }
 
 };
-
+//Concrete Beef Cattle Class. Tracked using Zigbee.
 class BeefCattle:public Cattle {
 private:
 	int uniqueID;
@@ -94,16 +118,19 @@ public:
 	BeefCattle(int id) { uniqueID = id; TrackingDevice = new ZigbeeDevice(uniqueID); }
 };
 
-class Carbonhdrate{
+//Abstract Feeder Factory Class
+class CattleFeeder {
 };
-
-class Protein{
+class Carbohydrate:public CattleFeeder{
 };
-class Corn:public Carbonhdrate{
+class Protein:public CattleFeeder{
+};
+class Corn:public Carbohydrate{
 };
 class Soybean :public Protein{
 };
 
+//Farm Facade Class
 class Farm {
 private:
 	vector <Cattle*> dairyLivestock;
@@ -120,7 +147,8 @@ public:
 	vector<Cattle*> getBeefCattle() { return beefLivestock; }
 };
 
-
+//Database Method definitions
+LivestockDatabase* LivestockDatabase::database = new LivestockDatabase();
 void LivestockDatabase::listDevices() {
 	for (unsigned int i = 0; i < deviceList.size(); i++) {
 		cout << i + 1 << "# device is on cattle id: " << deviceList[i]->getDeviceHolderID() << endl;
@@ -134,14 +162,17 @@ void LivestockDatabase::listLocations() {
 		cout << endl;
 	}
 }
-LivestockDatabase* LivestockDatabase::database = new LivestockDatabase();
 
+
+//Farmer Client
 int main() {
 	srand(time(NULL));
 	Farm* farm = new Farm();
-
+	
 	farm->AddNewBeefCattle(31234);
 	farm->AddNewBeefCattle(43569);
+	farm->AddNewDairyCattle(45435);
+	farm->AddNewDairyCattle(35433);
 
 	LivestockDatabase::GetDatabase()->listDevices();
 
