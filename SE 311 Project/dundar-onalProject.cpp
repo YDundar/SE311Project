@@ -1,13 +1,15 @@
 #include <iostream>
 #include <vector>
 #include <time.h>
-#include <ctime>
+#include<stdio.h>
+#include<stdlib.h>
+
 
 using namespace std;
 
 class Zigbee;
 //Database that holds the Location information of all farm animals using Zigbee signals.
-class LivestockDatabase { 
+class LivestockDatabase {
 private:
 	LivestockDatabase() {};
 	vector<Zigbee*> deviceList;
@@ -20,6 +22,7 @@ public:
 	void listLocations();
 	static LivestockDatabase* GetDatabase() { return database; }
 };
+
 //Abstract Zigbee class
 class Zigbee {
 public:
@@ -95,19 +98,62 @@ public:
 		return adaptee->getDeviceHolderID();
 	}
 };
+
+
+class Carbonhydrate{
+    public:
+    Carbonhydrate(){}
+    virtual void Food()=0;
+};
+class Protein{
+    public:
+    Protein(){}
+    virtual void Food()=0;
+
+};
+
+class Corn: public Carbonhydrate{
+    public:
+      void  Food(){
+    cout<<" Corn is gaved to dairycattle "<<endl;}
+};
+
+class Wheat :public Carbonhydrate{
+    public:
+      void  Food(){
+    cout<<" wheat is gaved to beefcattle"<<endl;}
+};
+class Soybean :public Protein{
+    public:
+      void  Food(){
+    cout<<" Soybean is gaved to dairycattle"<<endl;}
+};
+class Canola : public Protein{
+    public:
+    void Food(){cout<<" Canola is gaved to beef cattle"<<endl;}
+};
+
 //Abstract Cattle Class
 class Cattle {
 public:
 	Cattle() {}
+	 virtual Carbonhydrate * createcarbonhdyrate()=0;
+	 virtual Protein * createprotein()=0;
 };
+
 //Concrete Dairy Cattle Class. Tracked using Bluetooth.
 class DairyCattle:public Cattle {
 private:
 	int uniqueID;
 	Zigbee* bluetoothToZigbeeAdapter;
 public:
-	DairyCattle(int id) { uniqueID = id; bluetoothToZigbeeAdapter = new BluetoothToZigbee(new BluetoothDevice(uniqueID)); }
+	DairyCattle(int id) { uniqueID = id;
+	 bluetoothToZigbeeAdapter = new BluetoothToZigbee(new BluetoothDevice(uniqueID)); }
 
+    Carbonhydrate * createcarbonhdyrate(){
+        return new Corn() ;}
+    Protein * createprotein(){
+        return new Soybean();}
 };
 //Concrete Beef Cattle Class. Tracked using Zigbee.
 class BeefCattle:public Cattle {
@@ -116,27 +162,59 @@ private:
 	ZigbeeDevice* TrackingDevice;
 public:
 	BeefCattle(int id) { uniqueID = id; TrackingDevice = new ZigbeeDevice(uniqueID); }
+
+    Carbonhydrate* createcarbonhdyrate(){
+        return new Wheat();}
+     Protein* createprotein(){
+        return new Canola();}
 };
 
 //Abstract Feeder Factory Class
+
 class CattleFeeder {
-};
-class Carbohydrate:public CattleFeeder{
-};
-class Protein:public CattleFeeder{
-};
-class Corn:public Carbohydrate{
-};
-class Soybean :public Protein{
+protected:
+    Carbonhydrate * carbon_foods;
+    Protein* prot_foods;
+public:
+    virtual void feed_cattle(vector<Cattle *> c)=0;
 };
 
+class DairyCattleFeeder: public CattleFeeder{
+public:
+    void feed_cattle(vector<Cattle *> c){
+
+        for(int i=0; i< c.size();i++){
+        carbon_foods=c[i]->createcarbonhdyrate();
+        prot_foods=c[i]->createprotein();
+        carbon_foods->Food();
+        prot_foods->Food();
+        }
+    }
+};
+class BeefCattleFeeder: public CattleFeeder{
+public:
+    void feed_cattle(vector<Cattle *> c){
+
+        for(int i=0; i< c.size();i++){
+        carbon_foods=c[i]->createcarbonhdyrate();
+        prot_foods=c[i]->createprotein();
+        carbon_foods->Food();
+        prot_foods->Food();
+        }
+    }
+};
 //Farm Facade Class
 class Farm {
 private:
 	vector <Cattle*> dairyLivestock;
 	vector <Cattle*> beefLivestock;
+	DairyCattleFeeder *feeddairycattle;
+	BeefCattleFeeder * feedbeefcattle;
 public:
-
+    Farm(){
+        feeddairycattle=new DairyCattleFeeder();
+        feedbeefcattle=new BeefCattleFeeder();
+        }
 	void AddNewDairyCattle(int id) {
 		dairyLivestock.push_back(new DairyCattle(id));
 	}
@@ -145,6 +223,12 @@ public:
 	}
 	vector<Cattle*> getDairyCattle() { return dairyLivestock; }
 	vector<Cattle*> getBeefCattle() { return beefLivestock; }
+
+    void feeding_cattle(){
+        feeddairycattle->feed_cattle(dairyLivestock);
+        feedbeefcattle->feed_cattle(beefLivestock);
+        }
+
 };
 
 //Database Method definitions
@@ -168,7 +252,7 @@ void LivestockDatabase::listLocations() {
 int main() {
 	srand(time(NULL));
 	Farm* farm = new Farm();
-	
+
 	farm->AddNewBeefCattle(31234);
 	farm->AddNewBeefCattle(43569);
 	farm->AddNewDairyCattle(45435);
@@ -177,7 +261,7 @@ int main() {
 	LivestockDatabase::GetDatabase()->listDevices();
 
 	LivestockDatabase::GetDatabase()->listLocations();
-
+    farm->feeding_cattle();
 	getchar();
 	return 0;
 }
