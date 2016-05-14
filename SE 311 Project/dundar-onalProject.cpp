@@ -8,6 +8,9 @@
 using namespace std;
 
 class Zigbee;
+class Cattle;
+class DairyCattle;
+class BeefCattle;
 
 //Database that holds the Location information of all farm animals using Zigbee signals.
 class LivestockDatabase {
@@ -153,7 +156,6 @@ public:
 	virtual Carbonhydrate* feedCHydrate() = 0;
 	virtual Protein* feedProtein() = 0;
 };
-
 class DairyCattleFeeder : public CattleFeeder {//Concrete Dairy Feeder Factory Class
 public:
 	Carbonhydrate* feedCHydrate() {
@@ -173,11 +175,20 @@ public:
 	}
 };
 
+//Abstract Visitor Class
+class Visitor {
+public:
+	virtual void Visit(DairyCattle* cattle) = 0;
+	virtual void Visit(BeefCattle* cattle) = 0;
+};
 //Abstract Cattle Class also serves as the Abstract Factory methods client
 class Cattle {
 public:
 	Cattle() {}
 	virtual void eatFood(CattleFeeder* feeder) = 0;
+	virtual void Accept(Visitor* visitor) = 0;
+	virtual int getID() = 0;
+	virtual void receiveVaccination() = 0;
 protected:
 	Carbonhydrate* cHydrate;
 	Protein* protein;
@@ -192,7 +203,16 @@ public:
 	void eatFood(CattleFeeder* feeder) {
 		cHydrate = feeder->feedCHydrate();
 		protein = feeder->feedProtein();
-		cout << "Dairy Cattle " << uniqueID << " is eating " << cHydrate->getName() << " and " << protein->getName() << endl;
+		cout << "Dairy Cattle #" << uniqueID << " is eating " << cHydrate->getName() << " and " << protein->getName() << endl;
+	}
+	void Accept(Visitor * visitor) {
+		visitor->Visit(this);
+	}
+	int getID() {
+		return uniqueID;
+	}
+	void receiveVaccination() {
+		cout << "Dairy Cattle #" << uniqueID << " is receiving Vaccination." << endl;
 	}
 };
 //Concrete Beef Cattle Class. Tracked using Zigbee.
@@ -205,7 +225,38 @@ public:
 	void eatFood(CattleFeeder* feeder) {
 		cHydrate = feeder->feedCHydrate();
 		protein = feeder->feedProtein();
-		cout << "Beef Cattle " << uniqueID << " is eating " << cHydrate->getName() << " and " << protein->getName() << endl;
+		cout << "Beef Cattle #" << uniqueID << " is eating " << cHydrate->getName() << " and " << protein->getName() << endl;
+	}
+	void Accept(Visitor * visitor) {
+		visitor->Visit(this);
+	}
+	int getID() {
+		return uniqueID;
+	}
+	void receiveVaccination() {
+		cout << "Beef Cattle #" << uniqueID << " is receiving Vaccination." << endl;
+	}
+};
+
+//Concrete Veterinary Physician Visitor Class
+class Veterinarian :public Visitor {
+public:
+	void Visit(DairyCattle* cattle) {
+		cattle->receiveVaccination();
+	}
+	void Visit(BeefCattle* cattle) {
+		cattle->receiveVaccination();
+	}
+};
+
+//Concrete Ministry of Agriculture Visitor Class
+class MinistryRepresentative :public Visitor {
+public:
+	void Visit(DairyCattle* cattle) {
+		cout << "Dairy Cattle #" << cattle->getID()<<" has an ear tag." << endl;
+	}
+	void Visit(BeefCattle* cattle) {
+		cout << "Beef Cattle #" << cattle->getID() << " has an ear tag." << endl;
 	}
 };
 
@@ -234,19 +285,28 @@ public:
 			cattle->eatFood(beefFeeder);
 		}
 	}
+	void AcceptVisitor(Visitor* visitor) {
+		for each(Cattle* cattle in dairyLivestock) {
+			cattle->Accept(visitor);
+		}
+		for each(Cattle* cattle in beefLivestock) {
+			cattle->Accept(visitor);
+		}
+	}
 };
+
 
 //Database Method definitions
 LivestockDatabase* LivestockDatabase::database = new LivestockDatabase();
 void LivestockDatabase::listDevices() {
 	for (unsigned int i = 0; i < deviceList.size(); i++) {
-		cout << i + 1 << "# device is on cattle id: " << deviceList[i]->getDeviceHolderID() << endl;
+		cout <<"Device #"<< i + 1 << "is on cattle id: " << deviceList[i]->getDeviceHolderID() << endl;
 	}
 }
 void LivestockDatabase::listLocations() {
 	for (unsigned int i = 0; i < deviceList.size(); i++) {
 		deviceList[i]->updateLocation();
-		cout << "The animal with ID:" << deviceList[i]->getDeviceHolderID() << " is at location: ";
+		cout << "Cattle #" << deviceList[i]->getDeviceHolderID() << " is at location: ";
 		deviceList[i]->getLocationInfo();
 		cout << endl;
 	}
@@ -264,9 +324,14 @@ int main() {
 	farm->AddNewDairyCattle(35433);
 
 	LivestockDatabase::GetDatabase()->listDevices();
+	cout << endl;
 	LivestockDatabase::GetDatabase()->listLocations();
-
+	cout << endl;
 	farm->FeedLivestock();
+	cout << endl;
+	farm->AcceptVisitor(new Veterinarian());
+	cout << endl;
+	farm->AcceptVisitor(new MinistryRepresentative());
 
 	getchar();
 	return 0;
