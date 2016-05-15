@@ -34,6 +34,7 @@ public:
 	virtual void getLocationInfo() = 0;
 	virtual int getDeviceHolderID() = 0;
 	virtual void updateLocation() = 0;
+    virtual double * getcurrentlocation(){  }
 };
 
 //Concrete Zigbee Class
@@ -81,6 +82,7 @@ public:
 	void getLocationInfo() {
 		cout << "(" << location[0] << "," << location[1] << "," << location[2] << ")";
 	}
+	double * getcurrentlocation(){return location;}
 };
 
 //Bluetooth signal to Zigbee signal Adapter
@@ -104,6 +106,7 @@ public:
 	int getDeviceHolderID() {
 		return adaptee->getDeviceHolderID();
 	}
+	double * getcurrentlocation(){return adaptee->getcurrentlocation();}
 };
 
 //Product Classes
@@ -304,11 +307,16 @@ void LivestockDatabase::listDevices() {
 	}
 }
 void LivestockDatabase::listLocations() {
+    double * p;
 	for (unsigned int i = 0; i < deviceList.size(); i++) {
 		deviceList[i]->updateLocation();
 		cout << "Cattle #" << deviceList[i]->getDeviceHolderID() << " is at location: ";
 		deviceList[i]->getLocationInfo();
 		cout << endl;
+		p=deviceList[i]->getcurrentlocation();
+            if(*p>10 || *(p+1) >10 || *(p+2) >10){
+            cout<< "--------->"<<"WARNING: CATTLE exit from the farm boundaries!!!"<<endl ;
+        }
 	}
 }
 
