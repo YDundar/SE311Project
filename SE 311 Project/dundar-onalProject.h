@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <ctime>
+#include<cstdlib>
 
 using namespace std;
 
@@ -156,14 +157,14 @@ public:
 	//Name is set.
 	Corn() { name = "Corn"; }
 	//Accessor method for the protected data member "name".
-	string getName() { return name;	}
+	string getName() { return name; }
 };
 
 //Concrete Carbohydrate product class Wheat
 class Wheat :public Carbohydrate {
 public:
 	Wheat() { name = "Wheat"; }
-	string getName() { return name;	}
+	string getName() { return name; }
 };
 
 //Abstract Product Class Protein
@@ -186,7 +187,7 @@ public:
 class Canola : public Protein {
 public:
 	Canola() { name = "Canola"; }
-	string getName() { return name;	}
+	string getName() { return name; }
 };
 
 //Abstract Factory Class CattleFeeder
@@ -255,10 +256,10 @@ private:
 	Zigbee* bluetoothToZigbeeAdapter; //Bluetooth to Zigbee adapter.
 public:
 	//Unique id is set, Bluetooth tracker is initialized, adapter is initialized with the tracker.
-	DairyCattle(int id) { 
+	DairyCattle(int id) {
 		uniqueID = id;
 		TrackingDevice = new BluetoothDevice(uniqueID);
-		bluetoothToZigbeeAdapter = new BluetoothToZigbee(TrackingDevice); 
+		bluetoothToZigbeeAdapter = new BluetoothToZigbee(TrackingDevice);
 	}
 
 	//Method that simulates eating habits of dairy cattle.
@@ -364,23 +365,22 @@ public:
 
 	//Method that feeds all farm animals.
 	void FeedLivestock() {
-		for each (Cattle* cattle in dairyLivestock)
-		{
-			cattle->eatFood(dairyFeeder);
+		for (int i = 0; i<dairyLivestock.size(); i++) {
+			dairyLivestock[i]->eatFood(dairyFeeder);
 		}
-		for each (Cattle* cattle in beefLivestock)
-		{
-			cattle->eatFood(beefFeeder);
+		for (int i = 0; i<beefLivestock.size(); i++) {
+
+			beefLivestock[i]->eatFood(beefFeeder);
 		}
 	}
 
 	//Method that accepts a visitor for all farm animals.
 	void AcceptVisitor(Visitor* visitor) {
-		for each(Cattle* cattle in dairyLivestock) {
-			cattle->Accept(visitor);
+		for (int i = 0; i<dairyLivestock.size(); i++) {
+			dairyLivestock[i]->Accept(visitor);
 		}
-		for each(Cattle* cattle in beefLivestock) {
-			cattle->Accept(visitor);
+		for (int i = 0; i<beefLivestock.size(); i++) {
+			beefLivestock[i]->Accept(visitor);
 		}
 	}
 };

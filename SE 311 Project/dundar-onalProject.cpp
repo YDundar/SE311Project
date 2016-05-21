@@ -13,21 +13,21 @@ LivestockDatabase* LivestockDatabase::database = new LivestockDatabase();
 //Definition for Database Method "listDevices".
 void LivestockDatabase::listDevices() {
 	for (unsigned int i = 0; i < deviceList.size(); i++) {
-		cout <<"Device #"<< i + 1 << " is on Cattle ID: " << deviceList[i]->getDeviceHolderID() << endl;
+		cout << "Device #" << i + 1 << " is on Cattle ID: " << deviceList[i]->getDeviceHolderID() << endl;
 	}
 }
 
 //Definition for Database Method "listLocations".
 void LivestockDatabase::listLocations() {
-    double * p;
+	double * p;
 	for (unsigned int i = 0; i < deviceList.size(); i++) {
 		deviceList[i]->updateLocation();
 		cout << "Cattle #" << deviceList[i]->getDeviceHolderID() << " is at location: ";
 		deviceList[i]->printLocationInfo();
 		cout << endl;
-		p=deviceList[i]->getCurrentLocation();
-		if(*p>15 || *(p+2) >15){
-			cout<< "--------->"<<"WARNING: Cattle #"<<deviceList[i]->getDeviceHolderID() <<" is outside the farm boundaries!!!"<<endl ;
+		p = deviceList[i]->getCurrentLocation();
+		if (*p>15 || *(p + 2) >15) {
+			cout << "--------->" << "WARNING: Cattle #" << deviceList[i]->getDeviceHolderID() << " is outside the farm boundaries!!!" << endl;
 		}
 	}
 }
@@ -38,7 +38,7 @@ int main() {
 
 	Farm* farm = new Farm(); // Farm facade is created
 
-	//Cattle are added to the farm
+							 //Cattle are added to the farm
 	farm->AddNewBeefCattle(31234);
 	farm->AddNewBeefCattle(43569);
 	farm->AddNewDairyCattle(45435);
@@ -66,7 +66,6 @@ int main() {
 
 	cout << "--->Ministry of Food, Agriculture and Livestock visits the farm." << endl;
 	farm->AcceptVisitor(new MinistryRepresentative());
-
-	getchar();
+	//getchar();
 	return 0;
 }
