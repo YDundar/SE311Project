@@ -1,4 +1,4 @@
-//Yigit Can Dündar (20130601019) - Selin Önal () - Source file for SE 311 Term Project (2016)
+//Yigit Can Dündar (20130601019) - Selin Önal (20120603042) - Source file for SE 311 Term Project (2016)
 #include "dundar-onalProject.h"
 #include <iostream>
 #include <vector>
@@ -66,6 +66,6 @@ int main() {
 
 	cout << "--->Ministry of Food, Agriculture and Livestock visits the farm." << endl;
 	farm->AcceptVisitor(new MinistryRepresentative());
-	//getchar();
+
 	return 0;
 }

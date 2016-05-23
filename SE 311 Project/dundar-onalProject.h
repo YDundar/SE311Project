@@ -1,4 +1,4 @@
-//Yigit Can Dündar (20130601019) - Selin Önal () - Header file for SE 311 Term Project (2016)
+//Yigit Can Dündar (20130601019) - Selin Önal (20120603042) - Header file for SE 311 Term Project (2016)
 #pragma once
 #include <iostream>
 #include <vector>
@@ -274,7 +274,7 @@ public:
 		cout << "Dairy Cattle #" << uniqueID << " is eating " << cHydrate->getName() << " and " << protein->getName() << endl;
 	}
 
-	//Visitor accept class.
+	//Visitor accept method.
 	void Accept(Visitor * visitor) {
 		visitor->Visit(this);
 	}
@@ -355,8 +355,8 @@ class Farm {
 private:
 	vector <Cattle*> dairyLivestock; //List that holds Dairy Cattle informations.
 	vector <Cattle*> beefLivestock; //List that holds Beef Cattle informations.
-	DairyCattleFeeder * dairyFeeder = new DairyCattleFeeder(); //Dairy Feeder instance.
-	BeefCattleFeeder * beefFeeder = new BeefCattleFeeder(); //Beef Feeder instance.
+	CattleFeeder * dairyFeeder = new DairyCattleFeeder(); //Dairy Feeder instance.
+	CattleFeeder * beefFeeder = new BeefCattleFeeder(); //Beef Feeder instance.
 public:
 	//Method that adds a new Dairy Cattle to the dairyLiveStock list with id.
 	void AddNewDairyCattle(int id) {
