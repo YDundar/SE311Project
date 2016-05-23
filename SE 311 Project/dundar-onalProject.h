@@ -33,7 +33,12 @@ public:
 	void listLocations();
 
 	//Accessor method for the unique instance.
-	static LivestockDatabase* GetDatabase() { return database; }
+	static LivestockDatabase* GetDatabase() {
+		if (database == NULL) {
+			database = new LivestockDatabase();
+		}
+		return database;
+	}
 };
 
 //Abstract Zigbee class that provides an interface for Zigbee Devices and Bluetooth adapter.

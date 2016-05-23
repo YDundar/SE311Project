@@ -8,7 +8,7 @@
 using namespace std;
 
 //Database singleton initialization.
-LivestockDatabase* LivestockDatabase::database = new LivestockDatabase();
+LivestockDatabase* LivestockDatabase::database = LivestockDatabase::GetDatabase();
 
 //Definition for Database Method "listDevices".
 void LivestockDatabase::listDevices() {
